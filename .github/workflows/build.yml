@@ -1,0 +1,67 @@
+name: Build and Test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libturbojpeg0-dev
+      - name: macOS dependencies
+        if: runner.os == 'macOS'
+        run: brew install jpeg-turbo
+      - name: Configure
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == macOS ]]; then
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="$(brew --prefix jpeg-turbo)"
+          else
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          fi
+      - run: cmake --build build -j4
+      - run: ctest --test-dir build --output-on-failure
+
+  windows-cygwin:
+    runs-on: windows-latest
+    steps:
+      - run: git config --global core.autocrlf input
+      - uses: actions/checkout@v4
+      - uses: cygwin/cygwin-install-action@v6
+        with:
+          packages: gcc-g++ make cmake git ca-certificates libturbojpeg-devel
+          install-dir: C:\cygwin
+      - name: Build and test with Cygwin
+        shell: C:\cygwin\bin\bash.exe --noprofile --norc -eo pipefail -o igncr {0}
+        run: |
+          export PATH=/usr/bin:/bin
+          cmake -S . -B build-cygwin -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-cygwin -j4
+          ctest --test-dir build-cygwin --output-on-failure
+
+  alpine:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Build image and execute embedded regressions
+        run: docker buildx build --platform "${{ matrix.platform }}" --load -t mix-photo-export:ci .
+      - name: Check minimal runtime image
+        run: docker run --rm --platform "${{ matrix.platform }}" --network none mix-photo-export:ci --help

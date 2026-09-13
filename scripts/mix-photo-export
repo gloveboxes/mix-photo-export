@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root=$(cd "$(dirname "$0")/.." && pwd)
+runtime=${MIX_RUNTIME:-docker}
+image=${MIX_IMAGE:-mix-photo-export:local}
+
+usage() {
+    printf '%s\n' \
+        'Usage: bash scripts/mix-photo-export [--runtime docker|apple] COMMAND' \
+        '  build                         Build and test the Linux image' \
+        '  test                          Build the test stage and run regressions' \
+        '  convert INPUT OUTPUT [--quality 1..100]' \
+        '                                Convert folders using bind mounts'
+}
+
+if [[ ${1:-} == --runtime ]]; then
+    [[ $# -ge 2 ]] || { usage >&2; exit 2; }
+    runtime=$2
+    shift 2
+fi
+
+case "$runtime" in
+    docker)
+        engine=(docker)
+        build_options=()
+        run_options=(--network none --read-only --tmpfs /tmp:rw,noexec,nosuid,size=1g
+            --cap-drop ALL --security-opt no-new-privileges --memory 2g)
+        ;;
+    apple)
+        engine=(container)
+        build_options=(--progress plain --cpus 4 --memory 4g)
+        run_options=(--progress none --network none --cpus 2 --memory 2g)
+        ;;
+    *) printf 'Unknown runtime: %s\n' "$runtime" >&2; exit 2 ;;
+esac
+
+command=${1:---help}
+if [[ $# -gt 0 ]]; then shift; fi
+case "$command" in
+    --help|-h) usage; exit 0 ;;
+    build|test|convert) ;;
+    *) usage >&2; exit 2 ;;
+esac
+command -v "${engine[0]}" >/dev/null || { printf 'Missing runtime: %s\n' "${engine[0]}" >&2; exit 1; }
+if [[ "$runtime" == apple ]]; then
+    container system start
+fi
+
+case "$command" in
+    build)
+        [[ $# -eq 0 ]] || { usage >&2; exit 2; }
+        "${engine[@]}" build "${build_options[@]}" -t "$image" "$repo_root"
+        ;;
+    test)
+        [[ $# -eq 0 ]] || { usage >&2; exit 2; }
+        "${engine[@]}" build "${build_options[@]}" --target test -t "${image}-test" "$repo_root"
+        "${engine[@]}" run --rm --network none "${image}-test"
+        ;;
+    convert)
+        [[ $# -ge 2 ]] || { usage >&2; exit 2; }
+        input=$(cd "$1" && pwd -P)
+        mkdir -p "$2"
+        output=$(cd "$2" && pwd -P)
+        shift 2
+        [[ "$input" != "$output" ]] || { printf 'Use separate input and output folders.\n' >&2; exit 2; }
+        if [[ "$input" == *,* || "$output" == *,* ]]; then
+            printf 'Container mount paths cannot contain commas. Use another folder path.\n' >&2
+            exit 2
+        fi
+        "${engine[@]}" run --rm "${run_options[@]}" \
+            --user "$(id -u):$(id -g)" \
+            --mount "type=bind,source=$input,target=/input,readonly" \
+            --mount "type=bind,source=$output,target=/output" \
+            "$image" -input /input -output /output "$@"
+        ;;
+esac
