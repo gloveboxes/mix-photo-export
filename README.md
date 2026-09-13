@@ -112,7 +112,7 @@ Or use the Make targets:
 
 ```sh
 make docker-build
-make docker-convert INPUT="/path/to/mix photos" OUTPUT="/path/to/jpg photos" QUALITY=95
+make docker-convert INPUT="/path/to/mix photos" OUTPUT="/path/to/jpg photos" QUALITY=100
 make docker-test
 ```
 
@@ -132,7 +132,7 @@ docker run --rm --network none --read-only \
   --user "$(id -u):$(id -g)" \
   --mount "type=bind,source=/absolute/path/to/mix,target=/input,readonly" \
   --mount "type=bind,source=/absolute/path/to/jpg,target=/output" \
-  mix-photo-export:local -input /input -output /output --quality 95
+  mix-photo-export:local -input /input -output /output --quality 100
 ```
 
 Keep the input and output folders distinct. Bind mounts use absolute host paths;
@@ -156,7 +156,7 @@ docker run --rm --network none --read-only `
   --cap-drop ALL --security-opt no-new-privileges `
   --mount "type=bind,source=$InputFolder,target=/input,readonly" `
   --mount "type=bind,source=$OutputFolder,target=/output" `
-  mix-photo-export:local -input /input -output /output --quality 95
+  mix-photo-export:local -input /input -output /output --quality 100
 ```
 
 Allow Docker Desktop access to the selected folders when prompted. No Bash,
@@ -194,7 +194,7 @@ used by `pcb-agent`. The Apple build/run path was exercised locally with
 ```sh
 container system start
 make apple-build
-make apple-convert INPUT="/path/to/mix photos" OUTPUT="/path/to/jpg photos" QUALITY=95
+make apple-convert INPUT="/path/to/mix photos" OUTPUT="/path/to/jpg photos" QUALITY=100
 make apple-test
 ```
 
@@ -203,7 +203,7 @@ Without Make, use the launcher directly:
 ```sh
 bash scripts/mix-photo-export --runtime apple build
 bash scripts/mix-photo-export --runtime apple convert \
-  "/path/to/mix photos" "/path/to/jpg photos" --quality 95
+  "/path/to/mix photos" "/path/to/jpg photos" --quality 100
 bash scripts/mix-photo-export --runtime apple test
 ```
 
@@ -236,7 +236,7 @@ Each uses the same Linux source, dependencies, tests, and Dockerfile.
 | `MIX_RUNTIME` | `docker` | Default runtime; overridden by `--runtime` |
 | `MIX_IMAGE` | `mix-photo-export:local` | Local image tag |
 | Make `IMAGE` | `mix-photo-export:local` | Image tag passed to the launcher |
-| Make `QUALITY` | `95` | Conversion quality |
+| Make `QUALITY` | `100` | Conversion quality |
 
 For example, `make apple-build IMAGE=mix-photo-export:dev` creates a separate
 development tag. Use the same tag for subsequent conversion/test commands.
@@ -259,7 +259,7 @@ the image name in a `docker run` or `container run` command:
 | `-input PATH`, `--input PATH` | Source folder or individual file |
 | Positional `PATH` | Backward-compatible alternative to `-input` |
 | `-output DIR`, `--output DIR`, `-o DIR` | Destination directory, created if needed |
-| `--quality N` | Integer 1 through 100; default 95 |
+| `--quality N` | Integer 1 through 100; default 100 |
 | `--help`, `-h` | Print app name and usage |
 
 Only one input is accepted. Quote paths with spaces. Extensions are

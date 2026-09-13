@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
     try {
         fs::path input;
         fs::path output;
-        int quality = 95;
+        int quality = 100;
         for (int argument = 1; argument < argc; ++argument) {
             const std::string value = argv[argument];
             if (value == "--help" || value == "-h") {

@@ -1,7 +1,7 @@
 IMAGE ?= mix-photo-export:local
 INPUT ?=
 OUTPUT ?=
-QUALITY ?= 95
+QUALITY ?= 100
 
 .PHONY: build test docker-build docker-test docker-convert apple-build apple-test apple-convert
 
