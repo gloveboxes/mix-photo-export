@@ -1,0 +1,45 @@
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+permissions:
+  contents: read
+
+name: main
+jobs:
+  build_linux:
+    name: Build Linux
+    container:
+      image: ubuntu:20.04
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install dependencies
+        run: |
+          set -e
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update && \
+          apt-get install -y autoconf gcc g++ git libtool locales make pkg-config
+
+      - name: Configure Libfpx
+        env:
+          CFLAGS: '-Wall -Wextra -Werror -Wno-error=deprecated-copy -Wno-error=class-memaccess'
+          CXXFLAGS: '-Wall -Wextra -Werror -Wno-error=deprecated-copy -Wno-error=class-memaccess'
+        run: |
+          autoreconf -fiv
+          ./configure
+
+      - name: Build Libfpx
+        run: |
+          set -e
+          make
+          make check
+          make install

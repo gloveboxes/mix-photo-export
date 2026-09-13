@@ -1,6 +1,7 @@
 {
     "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
     "C_Cpp.default.includePath": [
-        "${workspaceFolder}/build/_deps/libfpx-src/**"
+        "${workspaceFolder}/third_party/libfpx/**",
+        "${workspaceFolder}/build/libfpx"
     ]
 }

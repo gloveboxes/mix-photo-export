@@ -10,6 +10,14 @@ It decodes the image tiles, including shared JPEG tables, rather than simply
 extracting a thumbnail or renaming an extension. No Apple imaging frameworks
 are required.
 
+**Pinned library source:** This repository includes an unmodified copy of
+libfpx 1.3.1-10 in [third_party/libfpx](third_party/libfpx), taken from
+[ImageMagick/libfpx at commit bb28e42245701ef5473ac086e06d505491ad3d8a](https://github.com/ImageMagick/libfpx/tree/bb28e42245701ef5473ac086e06d505491ad3d8a).
+The toolkit originated with Digital Imaging Group and Eastman Kodak.
+Builds use this included source, not an upstream download, so the legacy
+library remains available even if its upstream repository disappears.
+See [dependency provenance and licensing](third_party/README.md) for details.
+
 Run it on **Windows, macOS, or Linux using Docker**, or use **Apple containers
 on Apple Silicon**. This is a **container-only solution**: compilation, tests,
 and conversion run inside containers. No compiler or image libraries need to
@@ -68,8 +76,9 @@ Install and start Docker Desktop on Windows/macOS, or Docker Engine on Linux.
 Windows must use **Linux containers**, normally with Docker Desktop's WSL 2
 backend. Download or clone this repository and open a terminal at its root.
 
-The first build needs Internet access to download Alpine, packages, and the
-pinned FlashPix source. Conversion needs no Internet access.
+The first build needs Internet access to download Alpine and packages. The
+pinned FlashPix source is included in this repository; compilation, tests, and
+conversion need no Internet access after the build dependencies are installed.
 
 ### Build the Image
 
@@ -342,16 +351,23 @@ opens images in modification mode internally. Standalone extraction avoids an
 observed upstream `OLEFile::Release()` cleanup crash for directly opened
 embedded images; the upstream source is not patched.
 
-The image build pins FlashPix to revision
-`bb28e42245701ef5473ac086e06d505491ad3d8a`, compiling the legacy dependency as
-C++98 and the app as C++17. TurboJPEG and the other build dependencies are
-installed inside the image stages, not on the host. Alpine tags and package
-versions are not locked to exact digests, so builds are not claimed to be
-bit-for-bit reproducible.
+The repository vendors the complete FlashPix source at revision
+`bb28e42245701ef5473ac086e06d505491ad3d8a` under
+[third_party/libfpx](third_party/libfpx). CMake builds this local copy as C++98
+and the app as C++17, without fetching upstream source or requiring a submodule.
+Generated dependency files stay in the build directory. Container compilation
+and regression tests run with networking disabled.
+
+See [third_party/README.md](third_party/README.md) for provenance, license
+notices, and the update procedure. Vendoring protects against upstream source
+disappearance, not future security issues or compiler incompatibilities.
+TurboJPEG and the other build dependencies are installed inside the image
+stages, not on the host. Alpine tags and package versions are not locked to
+exact digests, so builds are not claimed to be bit-for-bit reproducible.
 
 | File | Purpose |
 | --- | --- |
-| [decode_mix.cpp](decode_mix.cpp) | CLI, temporary copies, image conversion, batch reporting |
+| [mix_photo_export.cpp](mix_photo_export.cpp) | CLI, temporary copies, image conversion, batch reporting |
 | [storage.cpp](storage.cpp) | Compound storage discovery and extraction |
 | [CMakeLists.txt](CMakeLists.txt) | Compilation and test configuration used by the image build |
 | [Dockerfile](Dockerfile) | Shared Alpine build/test/runtime stages |
@@ -359,6 +375,7 @@ bit-for-bit reproducible.
 | [Makefile](Makefile) | Docker and Apple-container convenience targets |
 | [tests/fixtures.cpp](tests/fixtures.cpp) | Generated images and portable JPEG validation |
 | [tests/regression.cmake](tests/regression.cmake) | End-to-end regression checks |
+| [third_party/README.md](third_party/README.md) | Vendored libfpx provenance, licensing, and maintenance |
 
 ## Troubleshooting
 
@@ -386,9 +403,12 @@ substitutes for editable originals.
 ## Licensing
 
 The FlashPix toolkit originates from the Digital Imaging Group, Inc. and Eastman
-Kodak Company and is maintained by ImageMagick Studio LLC. Review the downloaded
-toolkit's licensing notices before redistribution. The runtime image includes
-the notice from `flashpix.h`; system packages have their own license terms.
+Kodak Company and is maintained by ImageMagick Studio LLC. The vendored source
+retains its upstream notices; review
+[third_party/README.md](third_party/README.md) and
+[third_party/libfpx/flashpix.h](third_party/libfpx/flashpix.h) before
+redistribution. The runtime image includes the notice from `flashpix.h` and
+the dependency provenance document; system packages have their own license terms.
 
 This product includes software developed by the contributors and Digital
 Imaging Group, Inc. (<http://www.digitalimaging.org/>) for use in the Flashpix

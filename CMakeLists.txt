@@ -13,40 +13,39 @@ set_target_properties(TurboJPEG::TurboJPEG PROPERTIES
     IMPORTED_LOCATION "${TURBOJPEG_LIBRARY}"
     INTERFACE_INCLUDE_DIRECTORIES "${TURBOJPEG_INCLUDE_DIR}")
 
-include(FetchContent)
 include(ExternalProject)
-FetchContent_Declare(libfpx
-    GIT_REPOSITORY https://github.com/ImageMagick/libfpx.git
-    GIT_TAG bb28e42245701ef5473ac086e06d505491ad3d8a
-)
-FetchContent_MakeAvailable(libfpx)
+set(libfpx_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/libfpx")
+set(libfpx_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/libfpx")
 find_program(MAKE_PROGRAM make REQUIRED)
 ExternalProject_Add(fpx_build
     SOURCE_DIR "${libfpx_SOURCE_DIR}"
+    BINARY_DIR "${libfpx_BINARY_DIR}"
     DOWNLOAD_COMMAND ""
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND "${CMAKE_COMMAND}" -E env
         "CC=${CMAKE_C_COMPILER}" "CXX=${CMAKE_CXX_COMPILER}"
+        "CPPFLAGS=-I\"${libfpx_SOURCE_DIR}\""
         "CXXFLAGS=-O2 -std=gnu++98"
         <SOURCE_DIR>/configure --disable-shared --enable-static
     BUILD_COMMAND "${MAKE_PROGRAM}" -j4
-    BUILD_IN_SOURCE TRUE
+    BUILD_ALWAYS TRUE
     INSTALL_COMMAND ""
-    BUILD_BYPRODUCTS "${libfpx_SOURCE_DIR}/.libs/libfpx.a"
+    BUILD_BYPRODUCTS "${libfpx_BINARY_DIR}/.libs/libfpx.a"
 )
 
 add_library(fpx STATIC IMPORTED)
-set_target_properties(fpx PROPERTIES IMPORTED_LOCATION "${libfpx_SOURCE_DIR}/.libs/libfpx.a")
+set_target_properties(fpx PROPERTIES IMPORTED_LOCATION "${libfpx_BINARY_DIR}/.libs/libfpx.a")
 add_dependencies(fpx fpx_build)
 target_compile_definitions(fpx INTERFACE _UNIX HAVE_CONFIG_H)
 target_include_directories(fpx SYSTEM INTERFACE
+    "${libfpx_BINARY_DIR}"
     "${libfpx_SOURCE_DIR}" "${libfpx_SOURCE_DIR}/basics"
     "${libfpx_SOURCE_DIR}/oless" "${libfpx_SOURCE_DIR}/oless/h"
     "${libfpx_SOURCE_DIR}/ole" "${libfpx_SOURCE_DIR}/fpx"
     "${libfpx_SOURCE_DIR}/ri_image"
 )
 
-add_executable(mix-photo-export decode_mix.cpp storage.cpp)
+add_executable(mix-photo-export mix_photo_export.cpp storage.cpp)
 target_compile_features(mix-photo-export PRIVATE cxx_std_17)
 target_compile_options(mix-photo-export PRIVATE -Wall -Wextra -Wpedantic)
 target_link_libraries(mix-photo-export PRIVATE fpx TurboJPEG::TurboJPEG)

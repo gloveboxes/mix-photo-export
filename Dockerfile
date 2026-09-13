@@ -1,11 +1,12 @@
 FROM alpine:3.23 AS build
 
-RUN apk add --no-cache build-base ca-certificates cmake git libjpeg-turbo-dev
+RUN apk add --no-cache build-base ca-certificates cmake libjpeg-turbo-dev
 
 WORKDIR /src
-COPY CMakeLists.txt decode_mix.cpp storage.cpp ./
+COPY CMakeLists.txt mix_photo_export.cpp storage.cpp ./
 COPY tests/ tests/
-RUN cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+COPY third_party/libfpx/ third_party/libfpx/
+RUN --network=none cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
     && cmake --build build -j4 \
     && ctest --test-dir build --output-on-failure \
     && strip build/mix-photo-export
@@ -21,7 +22,8 @@ RUN apk add --no-cache libstdc++ libturbojpeg \
     && chown 10001:10001 /output
 
 COPY --from=build /src/build/mix-photo-export /usr/local/bin/mix-photo-export
-COPY --from=build /src/build/_deps/libfpx-src/flashpix.h /usr/share/doc/mix-photo-export/flashpix-notice.h
+COPY --from=build /src/third_party/libfpx/flashpix.h /usr/share/doc/mix-photo-export/flashpix-notice.h
+COPY third_party/README.md /usr/share/doc/mix-photo-export/third-party.md
 COPY README.md /usr/share/doc/mix-photo-export/README.md
 ENV HOME=/tmp
 WORKDIR /output

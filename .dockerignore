@@ -1,9 +1,13 @@
 **
 !Dockerfile
 !CMakeLists.txt
-!decode_mix.cpp
+!mix_photo_export.cpp
 !storage.cpp
 !README.md
 !tests/
 !tests/fixtures.cpp
 !tests/regression.cmake
+!third_party/
+!third_party/README.md
+!third_party/libfpx/
+!third_party/libfpx/**
