@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="840" viewBox="0 0 1600 840" role="img" aria-labelledby="title description">
+  <title id="title">MIX Photo Export: old photos, new life</title>
+  <desc id="description">A simple left-to-right process: legacy MIX files pass through MIX Photo Export and become JPEG photos.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2 2 L8 6 L2 10" fill="none" stroke="#23483e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="840" fill="#f4f7f5"/>
+  <path d="M0 0 H1600 V18 H0 Z" fill="#28775b"/>
+  <circle cx="108" cy="99" r="8" fill="#df674f"/>
+  <text x="132" y="108" fill="#23483e" font-family="Verdana, sans-serif" font-size="25">MIX PHOTO EXPORT</text>
+  <text x="100" y="220" fill="#19392f" font-family="Georgia, serif" font-size="76">Old photos. New life.</text>
+  <text x="103" y="279" fill="#53655e" font-family="Verdana, sans-serif" font-size="27">Recover your Picture It! images as JPEGs.</text>
+
+  <path d="M160 360 H286 L336 410 V554 H160 Z" fill="#fce6df" stroke="#ba543f" stroke-width="3"/>
+  <path d="M286 360 V410 H336" fill="none" stroke="#ba543f" stroke-width="3"/>
+  <text x="248" y="493" text-anchor="middle" fill="#963f2d" font-family="Verdana, sans-serif" font-size="43" font-weight="bold">.MIX</text>
+  <path d="M382 459 H568" fill="none" stroke="#23483e" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <rect x="625" y="379" width="350" height="156" rx="8" fill="#28775b"/>
+  <text x="800" y="449" text-anchor="middle" fill="#ffffff" font-family="Verdana, sans-serif" font-size="34" font-weight="bold">MIX Photo</text>
+  <text x="800" y="497" text-anchor="middle" fill="#ffffff" font-family="Verdana, sans-serif" font-size="34" font-weight="bold">Export</text>
+  <path d="M1032 459 H1218" fill="none" stroke="#23483e" stroke-width="3" marker-end="url(#arrow)"/>
+
+  <path d="M1272 360 H1398 L1448 410 V554 H1272 Z" fill="#e0edf5" stroke="#43728f" stroke-width="3"/>
+  <path d="M1398 360 V410 H1448" fill="none" stroke="#43728f" stroke-width="3"/>
+  <text x="1360" y="493" text-anchor="middle" fill="#315e79" font-family="Verdana, sans-serif" font-size="43" font-weight="bold">.JPG</text>
+
+  <text x="248" y="612" text-anchor="middle" fill="#19392f" font-family="Verdana, sans-serif" font-size="25">Legacy files</text>
+  <text x="800" y="612" text-anchor="middle" fill="#19392f" font-family="Verdana, sans-serif" font-size="25">Local conversion</text>
+  <text x="1360" y="612" text-anchor="middle" fill="#19392f" font-family="Verdana, sans-serif" font-size="25">Recovered photos</text>
+  <path d="M100 700 H1500" stroke="#cbd8d1" stroke-width="2"/>
+  <text x="100" y="761" fill="#53655e" font-family="Verdana, sans-serif" font-size="22">github.com/gloveboxes/mix-photo-export</text>
+  <text x="1500" y="761" text-anchor="end" fill="#53655e" font-family="Verdana, sans-serif" font-size="22">Docker + Apple containers</text>
+</svg>
