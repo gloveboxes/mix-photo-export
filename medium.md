@@ -1,43 +1,44 @@
-# Rescue Your Old Picture It! Photos: Convert .MIX Files to JPEG
-
-*A small tool for bringing photos out of a legacy format and back into your photo library.*
+# Getting My Old Family Photos Out of .MIX Files
 
 ![MIX Photo Export turns legacy MIX files into JPEG photos.](medium-banner.png)
 
-An old backup drive can hold more than forgotten documents. It might contain
-family holidays, birthdays, or photos you thought were lost. Then you notice
-the file extension: `.mix`. Your current photo app cannot open it.
+I had old family photos saved in Microsoft Picture It!'s `.mix` format.
+At the time, I thought it was a format that would last. I certainly wasn't
+thinking about how I'd open them years later.
 
-If those files came from **Microsoft Picture It!**, MIX Photo Export can help.
-It is a small tool for recovering the images inside those documents and
-exporting them as JPEGs, a format today's photo apps understand.
+Well, years later arrived. I wanted to convert those photos to JPEG, and
+couldn't find an easy way to do it. The files were there, but that wasn't
+much comfort when I couldn't get at the pictures.
 
-## Recover the Photo, Not Just the Thumbnail
+So I put GitHub Copilot and Astra to work on it. With their help, I built
+and tested a converter and got some of those lost memories back. Seeing
+the family photos again made this a particularly satisfying little project.
 
-A Picture It! MIX file can contain several embedded images, not simply one
-ordinary photo with an unusual filename. Renaming it to `.jpg` will not convert
-it.
+I've called it **MIX Photo Export** and put it on GitHub. You might have
+a folder of these files tucked away too.
 
-MIX Photo Export decodes each recognized image at its **highest stored
-resolution**. When a document contains multiple image stores, it exports them
-separately. Standalone FlashPix `.fpx` images are supported too.
+There was a bit more to it than changing a file extension. A MIX document
+can hold several embedded images. The library that makes this possible is
+[libfpx, the FlashPix toolkit maintained by ImageMagick](https://github.com/ImageMagick/libfpx).
+Originally developed by Digital Imaging Group and Eastman Kodak, it does
+the hard work of decoding those old images. Copilot and Astra helped me
+build the converter around that existing work.
 
-JPEG quality defaults to **100**, although JPEG is still lossy at that setting.
-The tool cannot add detail that was never present in the original file.
+The tool recovers each recognized image at its highest stored resolution
+and uses [libjpeg-turbo](https://libjpeg-turbo.org/) to write the JPEGs.
+Quality defaults to 100, though JPEG is still lossy at that setting.
+There's no AI-generated detail in the photos.
 
-## Keep Your Originals
-
-The container launcher mounts your input folder read-only, and the decoder
-works on temporary copies. Your exports go into a separate folder. Existing
-JPEGs are skipped rather than overwritten.
-
-That makes it practical to work through an old archive without replacing the
-files you are trying to preserve. Keep a backup of those originals anyway:
-JPEG exports are useful copies, not substitutes for editable documents.
+I also wanted to avoid depending on another old download staying available.
+The project includes a pinned copy of libfpx's source with its licence notices.
+It won't guarantee the tool works forever, but at least the decoder source
+comes with it. I'm grateful that this older work is still available and
+maintained; without it, recovering these photos would have been a much
+bigger project.
 
 ## Try It on a Folder
 
-Install and start Docker, then clone the project and build its image:
+With Docker installed and running, clone the project and build the image:
 
 ```sh
 git clone https://github.com/gloveboxes/mix-photo-export.git
@@ -52,33 +53,22 @@ bash scripts/mix-photo-export --runtime docker convert \
   "/path/to/mix photos" "/path/to/recovered photos"
 ```
 
-The first build downloads its container base and system packages. Conversion
-runs locally with networking disabled; your photos are not uploaded.
+The README covers Windows PowerShell and Apple containers as well. The
+first build needs internet access for the container base and packages;
+photo conversion runs locally with networking disabled.
 
-Docker also provides the Windows route, with PowerShell instructions in the
-project README. Apple Silicon users can use Apple's container runtime instead
-of Docker. Neither container route requires a host compiler or photo-decoding
-libraries.
+The launcher mounts your originals read-only and writes to a separate output
+folder. Existing JPEGs are skipped. Keep a backup anyway, and try a few files
+before running through the whole archive.
 
-## A Legacy Library, Kept With the Project
+One limitation worth knowing: you get the embedded photos, not the complete
+Picture It! layout. Text, layer positioning, viewing adjustments, metadata,
+and ICC profiles aren't carried across.
 
-The decoder uses ImageMagick's maintained version of the FlashPix toolkit,
-originally developed by Digital Imaging Group and Eastman Kodak. An exact
-source revision is included in the repository, along with its licensing
-notices, rather than downloaded from upstream during compilation.
+For my family photos, getting the pictures back was enough. I'm glad I kept
+those old files, even when I couldn't do much with them.
 
-That protects against the library's source disappearing. It does not promise
-permanent compatibility or remove the need for security maintenance.
+The [code and instructions are on GitHub](https://github.com/gloveboxes/mix-photo-export).
+Let me know how you get on with your own archive.
 
-## Know What You Are Recovering
-
-This is **photo recovery, not Picture It! document reconstruction**. Text,
-page layouts, layer positioning, and viewing adjustments are not reproduced.
-Metadata and ICC profiles are not copied. Folder scanning is nonrecursive,
-and unrelated formats that also use `.mix` are not supported.
-
-Start with a few files and inspect the results. For an archive of inaccessible
-Picture It! photos, getting the embedded images back into an everyday format
-can be the useful first step.
-
-**Project and instructions:** https://github.com/gloveboxes/mix-photo-export
+Cheers, Dave
