@@ -14,8 +14,6 @@ There was a bit more to it than changing a file extension. A MIX document can ho
 
 The tool recovers each recognized image at its highest stored resolution and uses [libjpeg-turbo](https://libjpeg-turbo.org/) to write the JPEGs. Quality defaults to 100, though JPEG is still lossy at that setting. There's no AI-generated detail in the photos.
 
-I also wanted to avoid depending on another old download staying available. The project includes a pinned copy of libfpx's source with its licence notices. It won't guarantee the tool works forever, but at least the decoder source comes with it. I'm grateful that this older work is still available and maintained; without it, recovering these photos would have been a much bigger project.
-
 ## Try It on a Folder
 
 With Docker installed and running, clone the project and build the image:
